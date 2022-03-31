@@ -23,31 +23,45 @@ kdtree3::kdtree3(const std::vector<Vector3f> &points)
   //   }
 }
 
-kdtree3::insert(const Vector3f &point)->bool {
+auto kdtree3::insert(const Vector3f &point) -> bool {
   auto index = 1;
   return insert_(point, index);
   //   if (root_ == nullptr) {
-  //     *root_ = kdtree3_node{point, 0, nullptr, nullptr};
+  //     *root_ = auto kdtree3_node{point, 0, nullptr, nullptr};
   //   }
 
   //   return true;
 }
 
-kdtree3::get_parent_idx_(unsigned int child_index) const->unsigned int {
+auto kdtree3::is_leaf_(unsigned int idx) const -> bool {
+  auto left_child_index = idx * 2;
+  auto right_child_index = idx * 2 + 1;
+  if (left_child_index > tree_.size() || right_child_index > tree_.size()) {
+    return false;
+  }
+  auto right_child = tree_[right_child_index];
+  auto left_child = tree_[left_child_index];
+  // ! fix: i don't like this. too brittle
+  auto left_child_empty = left_child.index == 0;
+  auto right_child_empty = right_child.index == 0;
+  return left_child_empty && right_child_empty;
+}
+
+auto kdtree3::get_parent_idx_(unsigned int child_index) const -> unsigned int {
   auto is_even = child_index % 2 == 0;
   auto child_is_left_of_parent = is_even;
   return child_index - (child_is_left_of_parent ? 0 : 1) / 2;
 }
 
-kdtree3::depth_(unsigned int index)->float {
+auto kdtree3::depth_(unsigned int index) -> float {
   return std::floor(std::log2(index));
 }
 
-kdtree3::resize_tree_to_double_its_size_() {
+auto kdtree3::resize_tree_to_double_its_size_() {
   tree_.resize(tree_.size() * 2, ::empty);
 }
 
-kdtree3::insert_(const Vector3f &point, unsigned int index)->bool {
+auto kdtree3::insert_(const Vector3f &point, unsigned int index) -> bool {
   assert(0 < index && index < tree_.size());
 
   const auto &node_at_index = tree_.at(index);
