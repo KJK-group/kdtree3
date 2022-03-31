@@ -47,6 +47,10 @@ auto kdtree3::is_leaf_(unsigned int idx) const -> bool {
   return left_child_empty && right_child_empty;
 }
 
+auto kdtree3::has_children_(unsigned int idx) const -> bool {
+  return !is_leaf_(idx);
+}
+
 auto kdtree3::get_parent_idx_(unsigned int child_index) const -> unsigned int {
   auto is_even = child_index % 2 == 0;
   auto child_is_left_of_parent = is_even;
