@@ -17,12 +17,35 @@ int main(int argc, char const *argv[]) {
   };
 
   std::cout << "calling constructor" << std::endl;
-  auto kdtree3 = kdtree::kdtree3(points);
+  {
+    auto kdtree3 = kdtree::kdtree3(points);
 
-  std ::cout << "can construct kdtree3" << std::endl;
+    std ::cout << "can construct kdtree3" << std::endl;
 
-  kdtree3.inorder_traversal([](const Eigen::Vector3f &point) {
-    std::cout << point.x() << " " << point.y() << " " << point.z() << std::endl;
-  });
+    std::cout << "inorder_traversal" << std::endl;
+    kdtree3.inorder_traversal([](const Eigen::Vector3f &point) {
+      std::cout << point.x() << " " << point.y() << " " << point.z()
+                << std::endl;
+    });
+    std::cout << "postorder_traversal" << std::endl;
+    kdtree3.postorder_traversal([](const Eigen::Vector3f &point) {
+      std::cout << point.x() << " " << point.y() << " " << point.z()
+                << std::endl;
+    });
+
+    std::cout << "preorder_traversal" << std::endl;
+    kdtree3.preorder_traversal([](const Eigen::Vector3f &point) {
+      std::cout << point.x() << " " << point.y() << " " << point.z()
+                << std::endl;
+    });
+
+    for (auto point : points) {
+      assert(kdtree3.contains(point));
+    }
+
+    auto point_not_in_tree = Eigen::Vector3f{10, 10, 10};
+    assert(not kdtree3.contains(point_not_in_tree));
+  }
+
   return 0;
 }
