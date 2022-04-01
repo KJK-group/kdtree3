@@ -8,6 +8,7 @@
 #include <tuple>
 #include <vector>
 
+#include <execution>
 #include <variant>
 
 #include "eigen3/Eigen/Dense"
@@ -37,14 +38,10 @@ enum class partial_ordering : char { less_than, equal, greater_than };
 //   }
 // };
 
-using kdtree3_node = Eigen::Vector3f;
-using kdtree3_comparator =
-    std::function<bool(const kdtree3_node &, const kdtree3_node &)> &;
-
 class kdtree3 {
 public:
   kdtree3(const std::vector<Eigen::Vector3f> &points);
-  ~kdtree3();
+  //   ~kdtree3();
 
   auto insert(const Eigen::Vector3f &node) -> bool;
   auto remove(const Eigen::Vector3f &node) -> bool;
@@ -56,53 +53,110 @@ public:
     return knn_search(1, node);
   }
 
+  auto inorder_traversal(std::function<void(const Eigen::Vector3f &)> fn) const
+      -> void;
+
 private:
   // version 1
-  kdtree3_node *root_;
-  std::priority_queue<kdtree3_node> binary_tree;
-
+  //   kdtree3_node *root_;
+  //   std::priority_queue<kdtree3_node> binary_tree;
+  unsigned int n_nodes_ = 0;
   // version 2
   // root_ at idx 0
   // left child at idx parent_idx
-  using empty = std::monostate;
-  using kdtree3_node_state = std::variant<empty, kdtree3_node>;
-  std::vector<kdtree3_node_state> tree_;
+  //   using kdtree3_node = Eigen::Vector3f;
+
+  //   using empty = std::monostate;
+  //   using kdtree3_node_state = std::variant<empty, kdtree3_node>;
+  using kdtree3_node = std::variant<std::monostate, Eigen::Vector3f>;
+  std::vector<kdtree3_node> tree_;
+  //   using kdtree3_comparator =
+  //       std::function<bool(const kdtree3_node &, const kdtree3_node &)> &;
+
   //   std::vector<std::optional<kdtree3_node>> tree_;
 
-  auto comparator_x(const kdtree3_node &n1, const kdtree3_node &n2)
-      -> partial_ordering {
-    // return n1.x() < n2.x();
-    return n1.x() < n2.x() ? partial_ordering::less_than
-                           : n1.x() > n2.x() ? partial_ordering::greater_than
-                                             : partial_ordering::equal;
-  }
+  //   auto comparator_x(const kdtree3_node &n1, const kdtree3_node &n2)
+  //       -> partial_ordering {
+  //     // return n1.x() < n2.x();
+  //     return n1.x() < n2.x() ? partial_ordering::less_than
+  //                            : n1.x() > n2.x() ?
+  //                            partial_ordering::greater_than
+  //                                              : partial_ordering::equal;
+  //   }
 
-  static auto comparator_y(const kdtree3_node &n1, const kdtree3_node &n2)
-      -> partial_ordering {
+  //   static auto comparator_y(const kdtree3_node &n1, const kdtree3_node &n2)
+  //       -> partial_ordering {
 
-    return n1.y() < n2.y() ? partial_ordering::less_than
-                           : n1.y() > n2.y() ? partial_ordering::greater_than
-                                             : partial_ordering::equal;
-  }
+  //     return n1.y() < n2.y() ? partial_ordering::less_than
+  //                            : n1.y() > n2.y() ?
+  //                            partial_ordering::greater_than
+  //                                              : partial_ordering::equal;
+  //   }
 
-  auto comparator_z(const kdtree3_node &n1, const kdtree3_node &n2)
-      -> partial_ordering {
-    // return n1.z() < n2.z();
-    return n1.z() < n2.z() ? partial_ordering::less_than
-                           : n1.z() > n2.z() ? partial_ordering::greater_than
-                                             : partial_ordering::equal;
-  }
+  //   auto comparator_z(const kdtree3_node &n1, const kdtree3_node &n2)
+  //       -> partial_ordering {
+  //     // return n1.z() < n2.z();
+  //     return n1.z() < n2.z() ? partial_ordering::less_than
+  //                            : n1.z() > n2.z() ?
+  //                            partial_ordering::greater_than
+  //                                              : partial_ordering::equal;
+  //   }
+
+  //   auto comparator_x(float n1, float n2) -> partial_ordering {
+  //     // return n1.x() < n2.x();
+  //     return n1.x() < n2.x() ? partial_ordering::less_than
+  //                            : n1.x() > n2.x() ?
+  //                            partial_ordering::greater_than
+  //                                              : partial_ordering::equal;
+  //   }
+
+  //   static auto comparator_y(float n1, float n2) -> partial_ordering {
+
+  //     return n1.y() < n2.y() ? partial_ordering::less_than
+  //                            : n1.y() > n2.y() ?
+  //                            partial_ordering::greater_than
+  //                                              : partial_ordering::equal;
+  //   }
+
+  //   auto comparator_z(float n1, float n2) -> partial_ordering {
+  //     // return n1.z() < n2.z();
+  //     return n1.z() < n2.z() ? partial_ordering::less_than
+  //                            : n1.z() > n2.z() ?
+  //                            partial_ordering::greater_than
+  //                                              : partial_ordering::equal;
+  //   }
 
   auto compare_nodes_based_on_depth(const kdtree3_node &n1,
                                     const kdtree3_node &n2, unsigned int depth)
-      -> decltype(comparator_z(n1, n2)) {
-    switch (depth % 3) {
-    case 0:
-      return comparator_x(n1, n2);
-    case 1:
-      return comparator_y(n1, n2);
-    case 2:
-      return comparator_z(n1, n2);
+      //   -> decltype(comparator_z(n1, n2)) {
+      -> partial_ordering {
+    auto comparison = [](float a, float b) -> partial_ordering {
+      return a < b ? partial_ordering::less_than
+                   : a > b ? partial_ordering::greater_than
+                           : partial_ordering::equal;
+    };
+    // switch (depth % 3) {
+    // case 0:
+    //   return comparator_x(n1, n2);
+    // case 1:
+    //   return comparator_y(n1, n2);
+    // case 2:
+    //   return comparator_z(n1, n2);
+    // }
+
+    try {
+      auto p1 = std::get<Eigen::Vector3f>(n1);
+      auto p2 = std::get<Eigen::Vector3f>(n2);
+      switch (depth % 3) {
+      case 0:
+        return comparison(p1.x(), p2.x());
+      case 1:
+        return comparison(p1.y(), p2.y());
+      case 2:
+        return comparison(p1.z(), p2.z());
+      }
+    } catch (const std::bad_variant_access &ex) {
+      std::cout << ex.what() << '\n';
     }
 
     std::cerr << "[ERROR]" << __FILE__ << ": " << __LINE__
@@ -110,11 +164,22 @@ private:
     std::exit(EXIT_FAILURE);
   }
   auto insert_(const Eigen::Vector3f &, unsigned int depth) -> bool;
+  auto is_leaf_(unsigned int idx) const -> bool;
+  auto has_children_(unsigned int idx) const -> bool;
+  auto get_parent_idx_(unsigned int child_idx) const -> unsigned int;
+  auto depth_(unsigned int idx) const -> unsigned int;
 
+  auto resize_tree_to_double_its_size_() -> void;
   auto rebalance_() -> void;
+  inline auto calculate_left_child_idx_(unsigned int parent_idx) const
+      -> unsigned int;
+  inline auto calculate_right_child_idx_(unsigned int parent_idx) const
+      -> unsigned int;
+  auto inorder_traversal_(std::function<void(const Eigen::Vector3f &)> fn,
+                          unsigned int node_idx) const -> void;
 };
 
-kdtree3::~kdtree3() {}
+// kdtree3::~kdtree3() {}
 
 } // namespace kdtree
 
