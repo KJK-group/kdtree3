@@ -16,6 +16,10 @@
 
 namespace kdtree {
 
+struct range {
+  float start, end;
+};
+
 // * no cpp 20 :(
 enum class partial_ordering : char { less_than, equal, greater_than };
 
@@ -93,13 +97,22 @@ public:
    * @return std::vector<Eigen::Vector3f> NOTE: the size of the vector will be
    * <= k.
    */
-  auto knn_search(unsigned int k, const Eigen::Vector3f &node)
+  auto knn_search(const Eigen::Vector3f &node, unsigned int k = 1)
       -> std::vector<Eigen::Vector3f> {
     return knn_search(root_, k, node);
   }
-  auto nn_search(const Eigen::Vector3f &node) -> decltype(knn_search(1, node)) {
-    return knn_search(1, node);
-  }
+
+  auto range_search(range x_range, range y_range, range z_range)
+      -> std::vector<Eigen::Vector3f>;
+  auto range_search_in_x(range x_range) -> std::vector<Eigen::Vector3f>;
+  auto range_search_in_y(range y_range) -> std::vector<Eigen::Vector3f>;
+  auto range_search_in_z(range z_range) -> std::vector<Eigen::Vector3f>;
+  auto range_search_in_xy(range x_range, range y_range)
+      -> std::vector<Eigen::Vector3f>;
+  auto range_search_in_xz(range x_range, range z_range)
+      -> std::vector<Eigen::Vector3f>;
+  auto range_search_in_yz(range y_range, range z_range)
+      -> std::vector<Eigen::Vector3f>;
 
 private:
   auto insert(std::unique_ptr<Node> &node, const Eigen::Vector3f &value,

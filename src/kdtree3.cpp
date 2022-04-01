@@ -1,5 +1,5 @@
-
 #include "kdtree3/kdtree3.hpp"
+#include "kdtree3/utils.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -15,6 +15,14 @@ kdtree3::kdtree3(const std::vector<Vector3f> &points) {
   // todo: figure out how insert should handle duplicates.
   std::for_each(points.cbegin(), points.cend(),
                 [this](const Vector3f &point) { insert(point); });
+  // version 2. find median of points
+  //   auto xs = std::vector<float>(points.size());
+  //   std::transform(points.cbegin(), points.cend(), xs.begin(),
+  //                  [](const Vector3f &p) { return p.x(); });
+  //   const auto median_x = utils::median(xs);
+  //   auto left_subtree_it = std::stable_partition(
+  //       points.begin(), points.end(),
+  //       [=](const auto &point) { return point.x() < median_x; });
 }
 
 auto compare_positions_based_on_depth(const Vector3f &p1, const Vector3f &p2,
@@ -60,6 +68,7 @@ auto kdtree3::contains(std::unique_ptr<Node> &node,
   return contains(less_than ? node->left_ : node->right_, value, depth + 1);
 }
 
+// todo: implement
 auto kdtree3::knn_search(std::unique_ptr<Node> &node, unsigned int k,
                          const Eigen::Vector3f &value)
     -> std::vector<Eigen::Vector3f> {}
