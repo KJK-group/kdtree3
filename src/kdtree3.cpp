@@ -68,7 +68,7 @@ auto kdtree3::contains(std::unique_ptr<Node> &node,
   return contains(less_than ? node->left_ : node->right_, value, depth + 1);
 }
 
-// todo: implement
+// todo: implementi
 auto kdtree3::knn_search(std::unique_ptr<Node> &node, unsigned int k,
                          const Eigen::Vector3f &value)
     -> std::vector<Eigen::Vector3f> {}
